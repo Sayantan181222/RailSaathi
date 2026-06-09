@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useRailSaathi } from '../context/RailSaathiContext';
 import { SCREENS, COLORS } from '../constants';
+import { Home, Clock, FileEdit, ShieldPlus, Building2 } from 'lucide-react-native';
 
 // Import screens
 import LoginScreen from '../screens/auth/LoginScreen';
@@ -75,27 +76,40 @@ function MainTabNavigator() {
         options={{
           title: 'Home',
           headerShown: false,
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tab.Screen
         name={SCREENS.TATKAL}
         component={TatkalScreen}
-        options={{ title: 'Tatkal Assist' }}
+        options={{
+          title: 'Tatkal Assist',
+          tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
+        }}
       />
       <Tab.Screen
         name={SCREENS.COMPLAINTS}
         component={ComplaintsScreen}
-        options={{ title: 'Complaints' }}
+        options={{
+          title: 'Complaints',
+          tabBarIcon: ({ color, size }) => <FileEdit color={color} size={size} />,
+        }}
       />
       <Tab.Screen
         name={SCREENS.SAFETY}
         component={SafetyScreen}
-        options={{ title: 'Safety & SOS' }}
+        options={{
+          title: 'Safety & SOS',
+          tabBarIcon: ({ color, size }) => <ShieldPlus color={color} size={size} />,
+        }}
       />
       <Tab.Screen
         name={SCREENS.STATION}
         component={StationScreen}
-        options={{ title: 'Station Guide' }}
+        options={{
+          title: 'Station Guide',
+          tabBarIcon: ({ color, size }) => <Building2 color={color} size={size} />,
+        }}
       />
     </Tab.Navigator>
   );
@@ -116,7 +130,7 @@ export default function AppNavigator() {
   const isProfileIncomplete = isLoggedIn && currentUser && !currentUser.name;
 
   return (
-    <NavigationContainer independent={true}>
+    <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!isLoggedIn ? (
           <>

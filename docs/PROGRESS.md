@@ -75,4 +75,6 @@ government admin web dashboard.
 - **Context Contract**: Members 2-5 must use `useRailSaathi()` from `context/RailSaathiContext` to read `currentUser` and `activeJourney`. Duplicate user fetching is strictly prohibited.
   - `currentUser` shape: `{ id: string, phone: string, name: string, emergency_contacts: string[], preferred_class: string }`
   - `activeJourney` shape: `{ id: string, user_id: string, pnr: string, train_number: string, train_name: string, boarding_station: string, destination_station: string, travel_date: string, coach: string, berth: string, class: string, status: string }`
+- **Database Client / Imports**: The correct database client import path for backend routes/modules to access Supabase is `require('../db/supabase-client')` (using kebab-case filenames as per AGENTS.md conventions).
+
 

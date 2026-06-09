@@ -1,4 +1,5 @@
 {
+  "main": "index.js",
   "expo": {
     "name": "mobile",
     "slug": "mobile",
@@ -24,7 +25,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router",
       [
         "expo-splash-screen",
         {

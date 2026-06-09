@@ -1,4 +1,7 @@
-export const API_BASE_URL = 'http://10.173.154.158:3000/api';
+// Set EXPO_PUBLIC_API_BASE_URL in .env for the deployed Render URL
+// Use .env.local for local development (localhost:3000)
+export const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000/api';
 
 export const SCREENS = {
   LOGIN: 'Login',

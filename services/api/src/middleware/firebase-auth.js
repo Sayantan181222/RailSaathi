@@ -43,12 +43,10 @@ async function verifyFirebaseToken(idToken) {
     // Fail-safe mock token verification for offline demo/local testing
     if (idToken && idToken.startsWith('mock_')) {
       console.log('Firebase Auth: Using mock bypass for verification token.');
-      const parts = idToken.split('_for_');
-      const code = parts[1] || '123456';
-      return {
-        uid: `mock_firebase_uid_${code}`,
-        phone_number: '+919999999999'
-      };
+      // MOCK MODE: real Firebase OTP verification bypassed for demo
+      const parts = idToken.replace('mock_firebase_otp_token_for_', '').split('_');
+      const phone = parts[0];
+      return { uid: `mock_uid_${phone}`, phone_number: `+91${phone}` };
     }
 
     initializeFirebase();

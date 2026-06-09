@@ -49,7 +49,7 @@ railsaathi/
 │       ├── src/
 │       │   ├── pages/           ← Overview, Complaints, Safety, Demand, Station
 │       │   ├── components/      ← Map, Chart, KPICard, Table
-│       │   └── services/        ← supabaseClient.js
+│       │   └── services/        ← supabase-client.js
 │       └── package.json
 │
 ├── services/
@@ -67,7 +67,7 @@ railsaathi/
 │       │   │   ├── auth.js      ← JWT verification middleware (Member 1)
 │       │   │   └── errorHandler.js
 │       │   ├── db/
-│       │   │   └── supabaseClient.js ← Single shared DB client (Member 1)
+│       │   │   └── supabase-client.js ← Single shared DB client (Member 1)
 │       │   └── index.js         ← Express app entry point (Member 1)
 │       └── package.json
 │

@@ -46,7 +46,7 @@ export default function LoginScreen({ navigation }) {
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <TouchableOpacity style={styles.button} activeOpacity={0.75} onClick={handleSendOTP} onPress={handleSendOTP}>
+      <TouchableOpacity style={styles.button} activeOpacity={0.75} onPress={handleSendOTP}>
         <Text style={styles.buttonText}>Send OTP</Text>
       </TouchableOpacity>
     </View>

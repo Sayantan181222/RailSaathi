@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, ScrollView, Alert, Animated } from 'react-native';
 import { useRailSaathi } from '../../context/RailSaathiContext';
-import { COLORS } from '../../constants';
+import { SCREENS, COLORS } from '../../constants';
 import apiClient from '../../services/apiClient';
+import { Clock, FileEdit, ShieldPlus, Building2, TrendingUp } from 'lucide-react-native';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const { currentUser, activeJourney, refreshUser, logout, loading: contextLoading, connectionError } = useRailSaathi();
   const [pnr, setPnr] = useState('');
   const [loading, setLoading] = useState(false);
@@ -65,14 +66,103 @@ export default function HomeScreen() {
             <Text style={styles.logoRail}>Rail</Text>
             <Text style={styles.logoSaathi}>Saathi</Text>
           </Text>
-          <TouchableOpacity style={styles.logoutBtn} onClick={logout} onPress={logout}>
+          <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.welcomeText}>Hello, {currentUser?.name || 'Passenger'}</Text>
       </View>
 
-      {/* Active Journey Card */}
+      {/* PNR Search Bar */}
+      <View style={styles.pnrSearchSection}>
+        <View style={styles.pnrContainer}>
+          <TextInput
+            style={styles.pnrInput}
+            keyboardType="numeric"
+            maxLength={10}
+            placeholder="Enter 10-digit PNR"
+            placeholderTextColor={COLORS.placeholderText}
+            value={pnr}
+            onChangeText={(val) => {
+              setPnr(val);
+              if (error) setError('');
+            }}
+          />
+          <TouchableOpacity
+            style={styles.trackBtn}
+            disabled={loading}
+            onPress={handleTrackPNR}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Text style={styles.trackBtnText}>Track</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+        {error ? (
+          <View style={{ width: '100%' }}>
+            <Text style={styles.errorText}>{error}</Text>
+            {error === 'Could not connect. Check your connection.' && (
+              <TouchableOpacity style={styles.retryBtn} onPress={handleTrackPNR}>
+                <Text style={styles.retryBtnText}>Retry</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        ) : null}
+      </View>
+
+      {/* Feature Tiles Section */}
+      <View style={styles.tilesSection}>
+        <Text style={styles.sectionHeading}>Quick Services</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tilesContainer}
+        >
+          <TouchableOpacity
+            style={styles.tile}
+            onPress={() => navigation.navigate(SCREENS.TATKAL)}
+          >
+            <Clock color={COLORS.brandOrange} size={24} />
+            <Text style={styles.tileLabel}>Tatkal Assist</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.tile}
+            onPress={() => navigation.navigate(SCREENS.COMPLAINTS)}
+          >
+            <FileEdit color={COLORS.brandOrange} size={24} />
+            <Text style={styles.tileLabel}>File Grievance</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.tile}
+            onPress={() => navigation.navigate(SCREENS.SAFETY)}
+          >
+            <ShieldPlus color={COLORS.brandOrange} size={24} />
+            <Text style={styles.tileLabel}>Safety & SOS</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.tile}
+            onPress={() => navigation.navigate(SCREENS.STATION)}
+          >
+            <Building2 color={COLORS.brandOrange} size={24} />
+            <Text style={styles.tileLabel}>Station Amenities</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.tile}
+            onPress={() => Alert.alert('Demand Forecast', 'This feature is currently available on the Admin Dashboard.')}
+          >
+            <TrendingUp color={COLORS.brandOrange} size={24} />
+            <Text style={styles.tileLabel}>Demand Forecast</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+
+      {/* Active Journey Section */}
       <View style={styles.cardSection}>
         <Text style={styles.sectionHeading}>Your Active Journey</Text>
 
@@ -135,45 +225,8 @@ export default function HomeScreen() {
           </View>
         ) : (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>No upcoming journey active.</Text>
-            <Text style={styles.emptySub}>Add a PNR number below to track status and receive safety updates.</Text>
-
-            <View style={styles.pnrContainer}>
-              <TextInput
-                style={styles.pnrInput}
-                keyboardType="numeric"
-                maxLength={10}
-                placeholder="Enter 10-digit PNR"
-                placeholderTextColor={COLORS.placeholderText}
-                value={pnr}
-                onChangeText={(val) => {
-                  setPnr(val);
-                  if (error) setError('');
-                }}
-              />
-              <TouchableOpacity
-                style={styles.trackBtn}
-                disabled={loading}
-                onClick={handleTrackPNR}
-                onPress={handleTrackPNR}
-              >
-                {loading ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
-                ) : (
-                  <Text style={styles.trackBtnText}>Track</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-            {error ? (
-              <View style={{ width: '100%' }}>
-                <Text style={styles.errorText}>{error}</Text>
-                {error === 'Could not connect. Check your connection.' && (
-                  <TouchableOpacity style={styles.retryBtn} onPress={handleTrackPNR}>
-                    <Text style={styles.retryBtnText}>Retry</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ) : null}
+            <Text style={styles.emptyText}>No active journey</Text>
+            <Text style={styles.emptySub}>Please enter your 10-digit PNR in the tracker above to fetch your journey details.</Text>
           </View>
         )}
       </View>
@@ -226,8 +279,75 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#FFFFFF',
   },
+  pnrSearchSection: {
+    paddingHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  pnrContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    height: 48,
+    overflow: 'hidden',
+  },
+  pnrInput: {
+    flex: 1,
+    fontSize: 15,
+    paddingHorizontal: 16,
+    color: COLORS.textPrimary,
+  },
+  trackBtn: {
+    backgroundColor: COLORS.brandOrange,
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  trackBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  errorText: {
+    color: '#CC0000',
+    fontSize: 12,
+    marginTop: 10,
+    fontWeight: '500',
+  },
+  tilesSection: {
+    paddingHorizontal: 20,
+    marginVertical: 12,
+  },
+  tilesContainer: {
+    paddingVertical: 8,
+  },
+  tile: {
+    backgroundColor: '#FFFFFF',
+    width: 80,
+    paddingVertical: 16,
+    paddingHorizontal: 6,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    elevation: 2,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  tileLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#111111',
+    textAlign: 'center',
+    marginTop: 8,
+  },
   cardSection: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   sectionHeading: {
     fontSize: 16,
@@ -349,40 +469,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     textAlign: 'center',
-    marginBottom: 20,
     lineHeight: 16,
-  },
-  pnrContainer: {
-    flexDirection: 'row',
-    width: '100%',
-    height: 48,
-    borderWidth: 1.5,
-    borderColor: COLORS.dividerGrey,
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  pnrInput: {
-    flex: 1,
-    fontSize: 15,
-    paddingHorizontal: 16,
-    color: COLORS.textPrimary,
-  },
-  trackBtn: {
-    backgroundColor: COLORS.brandOrange,
-    width: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  trackBtnText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  errorText: {
-    color: '#CC0000',
-    fontSize: 12,
-    marginTop: 10,
-    fontWeight: '500',
   },
   skeletonCard: {
     backgroundColor: '#EAEAEA',
@@ -459,3 +546,4 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
+

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRailSaathi } from '../../context/RailSaathiContext';
-import { COLORS, SCREENS } from '../../constants';
+import { COLORS } from '../../constants';
 import apiClient from '../../services/apiClient';
 
 export default function OTPVerifyScreen({ route, navigation }) {
@@ -22,19 +22,13 @@ export default function OTPVerifyScreen({ route, navigation }) {
       // Hit OTP verification endpoint
       const response = await apiClient.post('/auth/verify-otp', {
         phone,
-        firebase_id_token: `mock_firebase_otp_token_for_${code}`
+        firebase_id_token: `mock_firebase_otp_token_for_${phone}_${code}`
       });
 
       const { data } = response.data;
       if (data && data.token) {
-        // If user is brand new (doesn't have a name), go to profile setup
-        if (data.user && !data.user.name) {
-          // Navigate to Profile Setup stack
-          navigation.navigate(SCREENS.PROFILE_SETUP, { token: data.token, user: data.user });
-        } else {
-          // Expose to context and complete login
-          await login(data.token, data.user);
-        }
+        await login(data.token, data.user);
+        // AppNavigator handles routing based on profile completeness
       }
     } catch (err) {
       console.warn('Verify OTP failed:', err.message);
@@ -78,7 +72,6 @@ export default function OTPVerifyScreen({ route, navigation }) {
         style={styles.button}
         disabled={loading}
         activeOpacity={0.75}
-        onClick={handleVerify}
         onPress={handleVerify}
       >
         {loading ? (

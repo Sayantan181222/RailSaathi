@@ -4,14 +4,13 @@ import { useRailSaathi } from '../../context/RailSaathiContext';
 import { COLORS } from '../../constants';
 import apiClient from '../../services/apiClient';
 
-export default function ProfileSetupScreen({ route }) {
-  const { token } = route.params || { token: '' };
+export default function ProfileSetupScreen() {
+  const { token, login } = useRailSaathi();
   const [name, setName] = useState('');
   const [emergencyContact1, setEmergencyContact1] = useState('');
   const [emergencyContact2, setEmergencyContact2] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useRailSaathi();
 
   const handleCompleteProfile = async () => {
     if (name.trim().length < 2) {
@@ -128,7 +127,6 @@ export default function ProfileSetupScreen({ route }) {
         style={styles.button}
         disabled={loading}
         activeOpacity={0.75}
-        onClick={handleCompleteProfile}
         onPress={handleCompleteProfile}
       >
         {loading ? (
