@@ -59,8 +59,8 @@ export default function OverviewPage() {
       const { count, error: dbError } = await supabase
         .from('safety_events')
         .select('*', { count: 'exact', head: true })
-        .eq('event_type', 'SOS')
-        .eq('status', 'ACTIVE');
+        .eq('type', 'SOS')
+        .eq('resolved', false);
 
       if (dbError) throw dbError;
       setSafetyCount(count || 0);
