@@ -41,8 +41,8 @@ const resolvedIcon = L.divIcon({
 });
 
 const getIncidentIcon = (incident) => {
-  if (incident.resolved) return resolvedIcon;
-  if (incident.type === 'SOS') return sosIcon;
+  if (incident.status === 'RESOLVED') return resolvedIcon;
+  if (incident.event_type === 'SOS') return sosIcon;
   return activeIcon;
 };
 
@@ -86,10 +86,10 @@ export default function SafetyMap({ incidents = [], onResolve, resolvingId }) {
                   <h3
                     style={{
                       ...styles.popupTitle,
-                      color: inc.resolved ? '#888888' : (inc.type === 'SOS' ? '#CC0000' : '#E8621A')
+                      color: inc.status === 'RESOLVED' ? '#888888' : (inc.event_type === 'SOS' ? '#CC0000' : '#E8621A')
                     }}
                   >
-                    {inc.type} {inc.resolved && '(Resolved)'}
+                    {inc.event_type} {inc.status === 'RESOLVED' && '(Resolved)'}
                   </h3>
                   <p style={styles.popupText}>
                     <strong>Train:</strong> {inc.train_number} | <strong>Coach:</strong> {inc.coach || 'N/A'}
@@ -100,7 +100,7 @@ export default function SafetyMap({ incidents = [], onResolve, resolvingId }) {
                   {inc.description && (
                     <p style={styles.popupDesc}>"{inc.description}"</p>
                   )}
-                  {!inc.resolved && (
+                  {inc.status !== 'RESOLVED' && (
                     <button
                       type="button"
                       disabled={resolvingId === inc.id}

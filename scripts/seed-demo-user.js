@@ -125,33 +125,39 @@ async function seedDemo() {
     const mockComplaints = [
       {
         user_id: userId,
+        reference_number: 'COMP-D1',
         complaint_type: 'Cleanliness',
-        station: 'NDLS',
+        station_code: 'NDLS',
+        station_name: 'New Delhi',
         status: 'Resolved',
         train_number: '12951',
         description: 'Trash piled up in vestibule near coach B4.',
-        lat: 28.6415,
-        lng: 77.2193
+        station_lat: 28.6415,
+        station_lng: 77.2193
       },
       {
         user_id: userId,
+        reference_number: 'COMP-D2',
         complaint_type: 'AC Failure',
-        station: 'MMCT',
+        station_code: 'MMCT',
+        station_name: 'Mumbai Central',
         status: 'In-Progress',
         train_number: '12951',
         description: 'AC blowing hot air in coach B4, berth 32.',
-        lat: 18.9696,
-        lng: 72.8193
+        station_lat: 18.9696,
+        station_lng: 72.8193
       },
       {
         user_id: userId,
+        reference_number: 'COMP-D3',
         complaint_type: 'Staff Behaviour',
-        station: 'PUNE',
+        station_code: 'PUNE',
+        station_name: 'Pune Jn',
         status: 'Pending',
         train_number: '12951',
         description: 'Pantry staff overcharging for tea.',
-        lat: 18.5289,
-        lng: 73.8744
+        station_lat: 18.5289,
+        station_lng: 73.8744
       }
     ].map((c, idx) => {
       const date = new Date();
@@ -175,13 +181,13 @@ async function seedDemo() {
     sosTime.setMinutes(sosTime.getMinutes() - 30);
     const demoSos = {
       user_id: userId,
-      type: 'SOS',
+      event_type: 'SOS',
       train_number: '12952',
       coach: 'B2',
       lat: 19.0760,
       lng: 72.8777,
       description: 'Emergency assistance required in coach B2',
-      resolved: false,
+      status: 'ACTIVE',
       created_at: sosTime.toISOString()
     };
 
@@ -189,10 +195,14 @@ async function seedDemo() {
       console.log('Seeding active SOS alert... done');
     } else {
       console.log('Seeding active SOS alert...');
-      // Insert SOS alert
-      const { error: sosError } = await supabase.from('safety_events').insert(demoSos);
-      if (sosError) throw sosError;
-      console.log('Seeding active SOS alert... done');
+      try {
+        const { error: sosError } = await supabase.from('safety_events').insert(demoSos);
+        if (sosError) throw sosError;
+        console.log('Seeding active SOS alert... done');
+      } catch (err) {
+        console.warn('\n⚠️  WARNING: Seeding active SOS alert failed:', err.message || err);
+        console.warn('Please run the migration in supabase/migrations/002_update_safety_events.sql on your Supabase SQL editor to align the schema columns, then run this seeder again.\n');
+      }
     }
 
     // 5. Tatkal Demo Request

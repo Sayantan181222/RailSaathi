@@ -99,19 +99,19 @@ export default function SafetyTable({ incidents = [], onResolve, resolvingId }) 
               <div style={styles.thContent}>Train {renderSortIcon('train_number')}</div>
             </th>
             <th style={styles.th}>Coach</th>
-            <th style={styles.th} onClick={() => handleSort('type')}>
-              <div style={styles.thContent}>Incident Type {renderSortIcon('type')}</div>
+            <th style={styles.th} onClick={() => handleSort('event_type')}>
+              <div style={styles.thContent}>Incident Type {renderSortIcon('event_type')}</div>
             </th>
             <th style={styles.th}>Location</th>
-            <th style={styles.th} onClick={() => handleSort('resolved')}>
-              <div style={styles.thContent}>Status {renderSortIcon('resolved')}</div>
+            <th style={styles.th} onClick={() => handleSort('status')}>
+              <div style={styles.thContent}>Status {renderSortIcon('status')}</div>
             </th>
             <th style={styles.th}>Action</th>
           </tr>
         </thead>
         <tbody>
           {sortedIncidents.map((incident) => {
-            const isUnresolved = !incident.resolved;
+            const isUnresolved = incident.status === 'ACTIVE';
             const isResolving = resolvingId === incident.id;
             const rowStyle = {
               ...styles.row,
@@ -124,13 +124,13 @@ export default function SafetyTable({ incidents = [], onResolve, resolvingId }) 
                 <td style={styles.td}><strong>{incident.train_number}</strong></td>
                 <td style={styles.td}>{incident.coach || 'N/A'}</td>
                 <td style={styles.td}>
-                  <span style={{ ...styles.badge, ...getTypeStyles(incident.type) }}>
-                    {incident.type}
+                  <span style={{ ...styles.badge, ...getTypeStyles(incident.event_type) }}>
+                    {incident.event_type}
                   </span>
                 </td>
                 <td style={styles.td}>{formatLocation(incident.lat, incident.lng)}</td>
                 <td style={styles.td}>
-                  {incident.resolved ? (
+                  {incident.status === 'RESOLVED' ? (
                     <span style={{ ...styles.badge, ...styles.badgeResolved }}>Resolved</span>
                   ) : (
                     <span style={{ ...styles.badge, ...styles.badgeUnresolved }}>Active</span>

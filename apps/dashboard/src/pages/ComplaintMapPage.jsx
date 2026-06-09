@@ -101,12 +101,12 @@ export default function ComplaintMapPage() {
       // Group by station in memory
       const grouped = {};
       (data || []).forEach((c) => {
-        const stationCode = c.station || 'UNKNOWN';
+        const stationCode = c.station_code || c.station || 'UNKNOWN';
         if (!grouped[stationCode]) {
           const info = STATION_MAP[stationCode] || {
-            name: stationCode,
-            lat: c.lat || 20.5937,
-            lng: c.lng || 78.9629
+            name: c.station_name || stationCode,
+            lat: c.station_lat || c.lat || 20.5937,
+            lng: c.station_lng || c.lng || 78.9629
           };
           grouped[stationCode] = {
             code: stationCode,

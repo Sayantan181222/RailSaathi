@@ -68,6 +68,16 @@ BEGIN
   END IF;
 END $$;
 
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'users' AND policyname = 'service_role_bypass'
+  ) THEN
+    CREATE POLICY "service_role_bypass" ON users
+      FOR ALL TO service_role USING (true);
+  END IF;
+END $$;
+
 ALTER TABLE journeys ENABLE ROW LEVEL SECURITY;
 
 DO $$ 
@@ -77,6 +87,16 @@ BEGIN
   ) THEN
     CREATE POLICY "journeys_own_data" ON journeys
       FOR ALL USING (user_id = (SELECT id FROM users WHERE firebase_uid = auth.uid()));
+  END IF;
+END $$;
+
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE tablename = 'journeys' AND policyname = 'service_role_bypass'
+  ) THEN
+    CREATE POLICY "service_role_bypass" ON journeys
+      FOR ALL TO service_role USING (true);
   END IF;
 END $$;
 

@@ -28,12 +28,12 @@ export default function SafetyPage() {
       
       mockData.push({
         id: `mock-safety-${i}`,
-        type,
+        event_type: type,
         train_number: trains[i % trains.length],
         coach: coaches[i % coaches.length],
         location_lat: 12.9716 + (i * 0.01),
         location_lng: 77.5946 + (i * 0.01),
-        resolved,
+        status: resolved ? 'RESOLVED' : 'ACTIVE',
         created_at: date.toISOString(),
         resolved_at: resolved ? new Date().toISOString() : null,
         updated_at: date.toISOString()
@@ -96,7 +96,7 @@ export default function SafetyPage() {
         inc.id === id
           ? {
               ...inc,
-              resolved: true,
+              status: 'RESOLVED',
               resolved_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             }
@@ -108,7 +108,7 @@ export default function SafetyPage() {
       if (!isMock) {
         const { error } = await supabase
           .from('safety_events')
-          .update({ resolved: true })
+          .update({ status: 'RESOLVED' })
           .eq('id', id);
 
         if (error) throw error;
@@ -127,13 +127,13 @@ export default function SafetyPage() {
 
   // Metric computations
   const totalCount = incidents.length;
-  const activeSosCount = incidents.filter((i) => i.type === 'SOS' && !i.resolved).length;
+  const activeSosCount = incidents.filter((i) => i.event_type === 'SOS' && i.status === 'ACTIVE').length;
 
   const getResolvedToday = () => {
     if (isMock) return 3; // Demo Day Mock Value
     const todayStr = new Date().toDateString();
     return incidents.filter((inc) => {
-      if (!inc.resolved) return false;
+      if (inc.status !== 'RESOLVED') return false;
       const dateToCheck = inc.resolved_at || inc.updated_at || inc.created_at;
       return new Date(dateToCheck).toDateString() === todayStr;
     }).length;
@@ -141,7 +141,7 @@ export default function SafetyPage() {
 
   const getAvgResolutionTime = () => {
     if (isMock) return '18 mins'; // Demo Day Mock Value
-    const resolvedWithTimes = incidents.filter((i) => i.resolved && i.resolved_at && i.created_at);
+    const resolvedWithTimes = incidents.filter((i) => i.status === 'RESOLVED' && i.resolved_at && i.created_at);
     if (resolvedWithTimes.length === 0) return 'N/A';
     const sum = resolvedWithTimes.reduce((acc, curr) => {
       const delta = new Date(curr.resolved_at) - new Date(curr.created_at);

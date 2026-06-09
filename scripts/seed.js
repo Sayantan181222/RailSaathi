@@ -76,6 +76,7 @@ if (isMock) {
 
 async function ensureTablesExist() {
   const createTableQueries = [
+    `DROP TABLE IF EXISTS complaints CASCADE;`,
     `CREATE TABLE IF NOT EXISTS complaints (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -88,18 +89,20 @@ async function ensureTablesExist() {
       status VARCHAR(20) DEFAULT 'Pending',
       created_at TIMESTAMPTZ DEFAULT NOW()
     );`,
+    `DROP TABLE IF EXISTS safety_events CASCADE;`,
     `CREATE TABLE IF NOT EXISTS safety_events (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      type VARCHAR(50),
+      event_type VARCHAR(50),
       train_number VARCHAR(10),
       coach VARCHAR(10),
       lat FLOAT,
       lng FLOAT,
       description TEXT,
-      resolved BOOLEAN DEFAULT false,
+      status VARCHAR(20) DEFAULT 'ACTIVE',
       created_at TIMESTAMPTZ DEFAULT NOW()
     );`,
+    `DROP TABLE IF EXISTS travel_intents CASCADE;`,
     `CREATE TABLE IF NOT EXISTS travel_intents (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -111,6 +114,7 @@ async function ensureTablesExist() {
       is_surge BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );`,
+    `DROP TABLE IF EXISTS tatkal_requests CASCADE;`,
     `CREATE TABLE IF NOT EXISTS tatkal_requests (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       user_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -125,12 +129,14 @@ async function ensureTablesExist() {
 
   for (const q of createTableQueries) {
     try {
-      await supabase.rpc('exec_sql', { query: q });
+      const { error } = await supabase.rpc('exec_sql', { query: q });
+      if (error) throw error;
     } catch (e) {
       try {
-        await supabase.rpc('exec_sql', { sql: q });
+        const { error: error2 } = await supabase.rpc('exec_sql', { sql: q });
+        if (error2) throw error2;
       } catch (e2) {
-        // Assume tables are created in migrations
+        console.error('SQL Execution failed for query:', q.substring(0, 50), 'Errors:', e.message || e, e2.message || e2);
       }
     }
   }
@@ -224,12 +230,14 @@ async function seed() {
 
       complaintsToInsert.push({
         user_id: userIds[i % userIds.length],
+        reference_number: `COMP-${100000 + i}`,
         train_number: `12${Math.floor(Math.random() * 900) + 100}`,
-        station: station.code,
+        station_code: station.code,
+        station_name: station.name,
         complaint_type: type,
         description: `Synthetic issue report detailing ${type.toLowerCase()} concerns at ${station.name}.`,
-        lat: station.lat,
-        lng: station.lng,
+        station_lat: station.lat,
+        station_lng: station.lng,
         status,
         created_at: date.toISOString()
       });
@@ -249,7 +257,7 @@ async function seed() {
     for (let i = 0; i < 50; i++) {
       const route = SAFETY_ROUTES[i % SAFETY_ROUTES.length];
       const type = safetyTypes[Math.floor(Math.random() * safetyTypes.length)];
-      const resolved = i < 5 ? false : true;
+      const status = i < 5 ? 'ACTIVE' : 'RESOLVED';
       const date = new Date();
       date.setHours(date.getHours() - i);
 
@@ -258,19 +266,24 @@ async function seed() {
 
       safetyToInsert.push({
         user_id: userIds[i % userIds.length],
-        type: i < 5 ? 'SOS' : type,
+        event_type: i < 5 ? 'SOS' : type,
         train_number: `12${Math.floor(Math.random() * 900) + 100}`,
         coach: `S${Math.floor(Math.random() * 8) + 1}`,
         lat,
         lng,
         description: i < 5 ? 'Emergency SOS alarm triggered.' : `${type} safety event logged.`,
-        resolved,
+        status,
         created_at: date.toISOString()
       });
     }
-    const { error: safetyErr } = await supabase.from('safety_events').insert(safetyToInsert);
-    if (safetyErr) throw safetyErr;
-    console.log('Seeding safety_events... done (50 rows)');
+    try {
+      const { error: safetyErr } = await supabase.from('safety_events').insert(safetyToInsert);
+      if (safetyErr) throw safetyErr;
+      console.log('Seeding safety_events... done (50 rows)');
+    } catch (err) {
+      console.warn('\n⚠️  WARNING: Seeding safety_events failed:', err.message || err);
+      console.warn('Please run the migration in supabase/migrations/002_update_safety_events.sql on your Supabase SQL editor to align the schema columns, then run this seeder again.\n');
+    }
 
     // 5. Seed travel_intents
     console.log('Seeding travel_intents...');
