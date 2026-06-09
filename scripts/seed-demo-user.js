@@ -200,21 +200,51 @@ async function seedDemo() {
         if (sosError) throw sosError;
         console.log('Seeding active SOS alert... done');
       } catch (err) {
-        console.warn('\n⚠️  WARNING: Seeding active SOS alert failed:', err.message || err);
-        console.warn('Please run the migration in supabase/migrations/002_update_safety_events.sql on your Supabase SQL editor to align the schema columns, then run this seeder again.\n');
+        console.warn('\n⚠️  WARNING: Seeding active SOS alert with new schema failed, attempting old schema fallback...');
+        try {
+          const legacyDemoSos = {
+            user_id: demoSos.user_id,
+            type: demoSos.event_type,
+            train_number: demoSos.train_number,
+            coach: demoSos.coach,
+            lat: demoSos.lat,
+            lng: demoSos.lng,
+            description: demoSos.description,
+            resolved: demoSos.status === 'RESOLVED',
+            created_at: demoSos.created_at
+          };
+          const { error: legacyErr } = await supabase.from('safety_events').insert(legacyDemoSos);
+          if (legacyErr) throw legacyErr;
+          console.log('Seeding active SOS alert... done (using old schema fallback)\n');
+        } catch (fallbackErr) {
+          console.error('Seeding active SOS alert failed completely:', fallbackErr.message || fallbackErr);
+          console.warn('Please run the migration in supabase/migrations/002_update_safety_events.sql on your Supabase SQL editor to align the schema columns, then run this seeder again.\n');
+        }
       }
     }
 
     // 5. Tatkal Demo Request
     const tatkalDate = new Date();
     tatkalDate.setDate(tatkalDate.getDate() + 5);
+    // Calculated scheduled fire time (AC class fires at 10:00 AM day before travel)
+    const fireTime = new Date(tatkalDate);
+    fireTime.setDate(fireTime.getDate() - 1);
+    fireTime.setHours(10, 0, 0, 0);
+
     const demoTatkal = {
       user_id: userId,
+      from_station: 'NDLS',
+      to_station: 'MMCT',
+      travel_date: tatkalDate.toISOString().split('T')[0],
       train_number: '12951',
-      journey_date: tatkalDate.toISOString().split('T')[0],
       class: '3A',
-      urgency_score: 9,
-      status: 'Queued',
+      passengers: [{ name: 'Arjun Sharma', age: 32, gender: 'M' }],
+      is_urgent: true,
+      urgency_reason: 'MEDICAL',
+      urgency_score: 10,
+      scheduled_fire_time: fireTime.toISOString(),
+      status: 'PENDING',
+      booking_date: new Date().toISOString().split('T')[0],
       created_at: new Date().toISOString()
     };
 
@@ -234,12 +264,14 @@ async function seedDemo() {
       intentDate.setDate(intentDate.getDate() + (i % 7));
       surgeIntents.push({
         user_id: userId,
-        origin: 'NDLS',
-        destination: 'MMCT',
+        from_station: 'NDLS',
+        to_station: 'MMCT',
         travel_date: intentDate.toISOString().split('T')[0],
-        passenger_count: 2,
+        preferred_train: '12951',
         class: '3A',
-        is_surge: true,
+        crowding_score: 8.5,
+        crowding_label: 'VERY_CROWDED',
+        is_surge_route: true,
         created_at: new Date().toISOString()
       });
     }

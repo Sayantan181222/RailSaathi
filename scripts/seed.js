@@ -75,71 +75,7 @@ if (isMock) {
 }
 
 async function ensureTablesExist() {
-  const createTableQueries = [
-    `DROP TABLE IF EXISTS complaints CASCADE;`,
-    `CREATE TABLE IF NOT EXISTS complaints (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      train_number VARCHAR(10),
-      station VARCHAR(10),
-      complaint_type VARCHAR(50),
-      description TEXT,
-      lat FLOAT,
-      lng FLOAT,
-      status VARCHAR(20) DEFAULT 'Pending',
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );`,
-    `DROP TABLE IF EXISTS safety_events CASCADE;`,
-    `CREATE TABLE IF NOT EXISTS safety_events (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      event_type VARCHAR(50),
-      train_number VARCHAR(10),
-      coach VARCHAR(10),
-      lat FLOAT,
-      lng FLOAT,
-      description TEXT,
-      status VARCHAR(20) DEFAULT 'ACTIVE',
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );`,
-    `DROP TABLE IF EXISTS travel_intents CASCADE;`,
-    `CREATE TABLE IF NOT EXISTS travel_intents (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      origin VARCHAR(10),
-      destination VARCHAR(10),
-      travel_date DATE,
-      passenger_count INT,
-      class VARCHAR(5),
-      is_surge BOOLEAN DEFAULT false,
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );`,
-    `DROP TABLE IF EXISTS tatkal_requests CASCADE;`,
-    `CREATE TABLE IF NOT EXISTS tatkal_requests (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      train_number VARCHAR(10),
-      journey_date DATE,
-      class VARCHAR(5),
-      urgency_score INT,
-      status VARCHAR(20) DEFAULT 'Queued',
-      created_at TIMESTAMPTZ DEFAULT NOW()
-    );`
-  ];
-
-  for (const q of createTableQueries) {
-    try {
-      const { error } = await supabase.rpc('exec_sql', { query: q });
-      if (error) throw error;
-    } catch (e) {
-      try {
-        const { error: error2 } = await supabase.rpc('exec_sql', { sql: q });
-        if (error2) throw error2;
-      } catch (e2) {
-        console.error('SQL Execution failed for query:', q.substring(0, 50), 'Errors:', e.message || e, e2.message || e2);
-      }
-    }
-  }
+  // DB tables are defined via schema migrations, skipping creation in seeder.
 }
 
 async function seed() {
@@ -264,26 +200,51 @@ async function seed() {
       const lat = route.latMin + Math.random() * (route.latMax - route.latMin);
       const lng = route.lngMin + Math.random() * (route.lngMax - route.lngMin);
 
+      let event_type = 'SOS';
+      let alert_subtype = 'OTHER';
+      let priority = 'HIGH';
+
+      if (type === 'SOS') {
+        event_type = 'SOS';
+        alert_subtype = 'PERSONAL_SAFETY';
+        priority = 'CRITICAL';
+      } else if (type === 'Harassment') {
+        event_type = 'COMPARTMENT_VIOLATION';
+        alert_subtype = 'HARASSMENT';
+        priority = 'HIGH';
+      } else if (type === 'Medical') {
+        event_type = 'SOS';
+        alert_subtype = 'MEDICAL';
+        priority = 'CRITICAL';
+      } else if (type === 'Theft') {
+        event_type = 'SOS';
+        alert_subtype = 'THEFT';
+        priority = 'HIGH';
+      } else if (type === 'Overcrowding') {
+        event_type = 'COMPARTMENT_VIOLATION';
+        alert_subtype = 'THREATENING_BEHAVIOUR';
+        priority = 'MEDIUM';
+      }
+
       safetyToInsert.push({
         user_id: userIds[i % userIds.length],
-        event_type: i < 5 ? 'SOS' : type,
+        event_type,
+        alert_subtype,
+        priority,
         train_number: `12${Math.floor(Math.random() * 900) + 100}`,
         coach: `S${Math.floor(Math.random() * 8) + 1}`,
         lat,
         lng,
         description: i < 5 ? 'Emergency SOS alarm triggered.' : `${type} safety event logged.`,
         status,
-        created_at: date.toISOString()
+        created_at: date.toISOString(),
+        resolved_at: status === 'RESOLVED' ? new Date().toISOString() : null
       });
     }
-    try {
-      const { error: safetyErr } = await supabase.from('safety_events').insert(safetyToInsert);
-      if (safetyErr) throw safetyErr;
-      console.log('Seeding safety_events... done (50 rows)');
-    } catch (err) {
-      console.warn('\n⚠️  WARNING: Seeding safety_events failed:', err.message || err);
-      console.warn('Please run the migration in supabase/migrations/002_update_safety_events.sql on your Supabase SQL editor to align the schema columns, then run this seeder again.\n');
-    }
+
+    const { error: safetyErr } = await supabase.from('safety_events').insert(safetyToInsert);
+    if (safetyErr) throw safetyErr;
+    console.log('Seeding safety_events... done (50 rows)');
 
     // 5. Seed travel_intents
     console.log('Seeding travel_intents...');
@@ -294,12 +255,15 @@ async function seed() {
       travelDate.setDate(travelDate.getDate() + (i % 7));
       intentsToInsert.push({
         user_id: userIds[i % userIds.length],
-        origin: route.origin,
-        destination: route.dest,
+        from_station: route.origin,
+        to_station: route.dest,
         travel_date: travelDate.toISOString().split('T')[0],
-        passenger_count: Math.floor(Math.random() * 4) + 1,
+        preferred_train: '12951',
         class: ['SL', '3A', '2A', '1A'][Math.floor(Math.random() * 4)],
-        is_surge: Math.random() < 0.3
+        crowding_score: parseFloat((Math.random() * 5 + 4).toFixed(1)),
+        crowding_label: 'MODERATE',
+        is_surge_route: Math.random() < 0.3,
+        created_at: new Date().toISOString()
       });
     }
     for (let j = 0; j < intentsToInsert.length; j += 100) {
@@ -314,14 +278,27 @@ async function seed() {
     const tatkalToInsert = [];
     for (let i = 0; i < 10; i++) {
       const travelDate = new Date();
-      travelDate.setDate(travelDate.getDate() + 1);
+      travelDate.setDate(travelDate.getDate() + 2);
+      const fireTime = new Date(travelDate);
+      fireTime.setDate(fireTime.getDate() - 1);
+      fireTime.setHours(10, 0, 0, 0);
+
+      const name = NAMES[i % NAMES.length] + ' Sharma';
+
       tatkalToInsert.push({
         user_id: userIds[i % userIds.length],
+        from_station: 'NDLS',
+        to_station: 'MMCT',
+        travel_date: travelDate.toISOString().split('T')[0],
         train_number: `12${Math.floor(Math.random() * 90) + 10}1`,
-        journey_date: travelDate.toISOString().split('T')[0],
         class: ['SL', '3A', '2A'][Math.floor(Math.random() * 3)],
+        passengers: [{ name, age: 25 + i, gender: 'M' }],
+        is_urgent: true,
+        urgency_reason: 'MEDICAL',
         urgency_score: i < 3 ? 8 + i : 5 + (i % 3),
-        status: 'Queued'
+        scheduled_fire_time: fireTime.toISOString(),
+        status: 'PENDING',
+        booking_date: new Date().toISOString().split('T')[0]
       });
     }
     const { error: tatkalErr } = await supabase.from('tatkal_requests').insert(tatkalToInsert);

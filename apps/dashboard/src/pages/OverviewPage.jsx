@@ -62,8 +62,19 @@ export default function OverviewPage() {
         .eq('event_type', 'SOS')
         .eq('status', 'ACTIVE');
 
-      if (dbError) throw dbError;
-      setSafetyCount(count || 0);
+      if (dbError) {
+        // Fallback to legacy schema (type and resolved columns)
+        const { count: fallbackCount, error: fallbackError } = await supabase
+          .from('safety_events')
+          .select('*', { count: 'exact', head: true })
+          .eq('type', 'SOS')
+          .eq('resolved', false);
+
+        if (fallbackError) throw dbError; // Throw the original error if fallback also fails
+        setSafetyCount(fallbackCount || 0);
+      } else {
+        setSafetyCount(count || 0);
+      }
     } catch (err) {
       console.warn('Safety events query failed:', err);
       throw err;

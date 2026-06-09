@@ -71,11 +71,13 @@ const tatkalRoutes = safeRequire('./routes/tatkal');
 const complaintRoutes = safeRequire('./routes/complaints');
 const safetyRoutes = safeRequire('./routes/safety');
 const amenityRoutes = safeRequire('./routes/amenities');
+const amenityExtraRoutes = safeRequire('./routes/amenities-extra');
 
 if (tatkalRoutes) app.use('/api/tatkal', tatkalRoutes);
 if (complaintRoutes) app.use('/api/complaints', complaintRoutes);
 if (safetyRoutes) app.use('/api/safety', safetyRoutes);
 if (amenityRoutes) app.use('/api/amenities', amenityRoutes);
+if (amenityExtraRoutes) app.use('/api/amenities', amenityExtraRoutes);
 
 
 // Protected test endpoint for verification

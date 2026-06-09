@@ -5,6 +5,9 @@ import ComplaintMapPage from './pages/ComplaintMapPage';
 import SafetyPage from './pages/SafetyPage';
 import DemandPage from './pages/DemandPage';
 import StationPage from './pages/StationPage';
+import GrievancePortalPage from './pages/GrievancePortalPage';
+import LiveHeatmapPage from './pages/LiveHeatmapPage';
+import RPFDashboardPage from './pages/RPFDashboardPage';
 import './index.css';
 
 export default function App() {
@@ -17,6 +20,9 @@ export default function App() {
           <Route path="/safety" element={<SafetyPage />} />
           <Route path="/demand" element={<DemandPage />} />
           <Route path="/station" element={<StationPage />} />
+          <Route path="/grievance" element={<GrievancePortalPage />} />
+          <Route path="/heatmap" element={<LiveHeatmapPage />} />
+          <Route path="/rpf" element={<RPFDashboardPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

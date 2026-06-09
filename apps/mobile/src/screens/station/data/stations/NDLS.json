@@ -1,0 +1,29 @@
+{
+  "station_code": "NDLS",
+  "station_name": "New Delhi Railway Station",
+  "platforms": [
+    { "id": "P1", "label": "Platform 1", "x1": 50, "y1": 80, "x2": 950, "y2": 115 },
+    { "id": "P2", "label": "Platform 2", "x1": 50, "y1": 140, "x2": 950, "y2": 175 },
+    { "id": "P3", "label": "Platform 3", "x1": 50, "y1": 200, "x2": 950, "y2": 235 },
+    { "id": "P4", "label": "Platform 4", "x1": 50, "y1": 260, "x2": 950, "y2": 295 },
+    { "id": "P5", "label": "Platform 5", "x1": 50, "y1": 320, "x2": 950, "y2": 355 },
+    { "id": "P6", "label": "Platform 6", "x1": 50, "y1": 380, "x2": 950, "y2": 415 },
+    { "id": "P7", "label": "Platform 7", "x1": 50, "y1": 440, "x2": 950, "y2": 475 },
+    { "id": "P8", "label": "Platform 8", "x1": 50, "y1": 500, "x2": 950, "y2": 535 }
+  ],
+  "structures": [
+    { "type": "CONCOURSE", "label": "Main Concourse", "x1": 50, "y1": 420, "x2": 950, "y2": 530 },
+    { "type": "FOB", "label": "Foot Over Bridge", "x1": 490, "y1": 80, "x2": 510, "y2": 530 },
+    { "type": "ENTRY", "label": "Ajmeri Gate Entry", "x1": 50, "y1": 535, "x2": 200, "y2": 570 },
+    { "type": "ENTRY", "label": "Paharganj Entry", "x1": 750, "y1": 535, "x2": 950, "y2": 570 }
+  ],
+  "tracks": [
+    { "id": "T1-2", "x1": 50, "y1": 115, "x2": 950, "y2": 140 },
+    { "id": "T2-3", "x1": 50, "y1": 175, "x2": 950, "y2": 200 },
+    { "id": "T3-4", "x1": 50, "y1": 235, "x2": 950, "y2": 260 },
+    { "id": "T4-5", "x1": 50, "y1": 295, "x2": 950, "y2": 320 },
+    { "id": "T5-6", "x1": 50, "y1": 355, "x2": 950, "y2": 380 },
+    { "id": "T6-7", "x1": 50, "y1": 415, "x2": 950, "y2": 440 },
+    { "id": "T7-8", "x1": 50, "y1": 475, "x2": 950, "y2": 500 }
+  ]
+}

@@ -4,6 +4,7 @@ import { useRailSaathi } from '../../context/RailSaathiContext';
 import { SCREENS, COLORS } from '../../constants';
 import apiClient from '../../services/apiClient';
 import { Clock, FileEdit, ShieldPlus, Building2, TrendingUp } from 'lucide-react-native';
+import SOSButton from '../safety/components/SOSButton';
 
 export default function HomeScreen({ navigation }) {
   const { currentUser, activeJourney, refreshUser, logout, loading: contextLoading, connectionError } = useRailSaathi();
@@ -111,6 +112,9 @@ export default function HomeScreen({ navigation }) {
           </View>
         ) : null}
       </View>
+
+      {/* SOS Emergency Button */}
+      <SOSButton />
 
       {/* Feature Tiles Section */}
       <View style={styles.tilesSection}>

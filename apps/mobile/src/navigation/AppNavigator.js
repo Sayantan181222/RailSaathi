@@ -12,6 +12,12 @@ import LoginScreen from '../screens/auth/LoginScreen';
 import OTPVerifyScreen from '../screens/auth/OTPVerifyScreen';
 import ProfileSetupScreen from '../screens/auth/ProfileSetupScreen';
 import HomeScreen from '../screens/home/HomeScreen';
+import ComplaintsHomeScreen from '../screens/complaints/ComplaintsHomeScreen';
+import SafetyHomeScreen from '../screens/safety/SafetyHomeScreen';
+import StationNavigator from './StationNavigator';
+import TatkalHomeScreen from '../screens/tatkal/TatkalHomeScreen';
+import PreFillFormScreen from '../screens/tatkal/PreFillFormScreen';
+import SurrenderMarketScreen from '../screens/tatkal/SurrenderMarketScreen';
 
 // Helper to generate static placeholder screens for pending member integrations
 const createPlaceholderScreen = (name) => {
@@ -34,10 +40,7 @@ const createPlaceholderScreen = (name) => {
   return FallbackComponent;
 };
 
-const TatkalScreen = createPlaceholderScreen('Tatkal Assist');
-const ComplaintsScreen = createPlaceholderScreen('Complaints');
-const SafetyScreen = createPlaceholderScreen('Safety & SOS');
-const StationScreen = createPlaceholderScreen('Station Guide');
+// TatkalScreen placeholder removed
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -81,7 +84,7 @@ function MainTabNavigator() {
       />
       <Tab.Screen
         name={SCREENS.TATKAL}
-        component={TatkalScreen}
+        component={TatkalHomeScreen}
         options={{
           title: 'Tatkal Assist',
           tabBarIcon: ({ color, size }) => <Clock color={color} size={size} />,
@@ -89,7 +92,7 @@ function MainTabNavigator() {
       />
       <Tab.Screen
         name={SCREENS.COMPLAINTS}
-        component={ComplaintsScreen}
+        component={ComplaintsHomeScreen}
         options={{
           title: 'Complaints',
           tabBarIcon: ({ color, size }) => <FileEdit color={color} size={size} />,
@@ -97,7 +100,7 @@ function MainTabNavigator() {
       />
       <Tab.Screen
         name={SCREENS.SAFETY}
-        component={SafetyScreen}
+        component={SafetyHomeScreen}
         options={{
           title: 'Safety & SOS',
           tabBarIcon: ({ color, size }) => <ShieldPlus color={color} size={size} />,
@@ -105,9 +108,10 @@ function MainTabNavigator() {
       />
       <Tab.Screen
         name={SCREENS.STATION}
-        component={StationScreen}
+        component={StationNavigator}
         options={{
           title: 'Station Guide',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Building2 color={color} size={size} />,
         }}
       />
@@ -140,7 +144,29 @@ export default function AppNavigator() {
         ) : isProfileIncomplete ? (
           <Stack.Screen name={SCREENS.PROFILE_SETUP} component={ProfileSetupScreen} />
         ) : (
-          <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+            <Stack.Screen 
+              name="PreFillForm" 
+              component={PreFillFormScreen} 
+              options={{ 
+                headerShown: true, 
+                title: 'Book Tatkal Assist',
+                headerTintColor: COLORS.brandOrange,
+                headerTitleStyle: { color: COLORS.brandNavy, fontWeight: 'bold' }
+              }} 
+            />
+            <Stack.Screen 
+              name="SurrenderMarket" 
+              component={SurrenderMarketScreen} 
+              options={{ 
+                headerShown: true, 
+                title: 'Surrender Market',
+                headerTintColor: COLORS.brandOrange,
+                headerTitleStyle: { color: COLORS.brandNavy, fontWeight: 'bold' }
+              }} 
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

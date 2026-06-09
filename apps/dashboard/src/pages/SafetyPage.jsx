@@ -58,7 +58,13 @@ export default function SafetyPage() {
           .order('created_at', { ascending: false });
 
         if (dbError) throw dbError;
-        setIncidents(data || []);
+        
+        const normalizedData = (data || []).map((row) => ({
+          ...row,
+          event_type: row.event_type || row.type || 'SOS',
+          status: row.status || (row.resolved ? 'RESOLVED' : 'ACTIVE')
+        }));
+        setIncidents(normalizedData);
       }
     } catch (err) {
       console.warn('Safety events query fallback: table might not exist yet.', err);
@@ -111,7 +117,14 @@ export default function SafetyPage() {
           .update({ status: 'RESOLVED' })
           .eq('id', id);
 
-        if (error) throw error;
+        if (error) {
+          // Fallback to legacy schema
+          const { error: fallbackError } = await supabase
+            .from('safety_events')
+            .update({ resolved: true })
+            .eq('id', id);
+          if (fallbackError) throw error;
+        }
       } else {
         // Mock delay for UI feedback
         await new Promise((resolve) => setTimeout(resolve, 800));

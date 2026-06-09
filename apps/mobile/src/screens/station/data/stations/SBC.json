@@ -1,0 +1,23 @@
+{
+  "station_code": "SBC",
+  "station_name": "Bengaluru City Junction",
+  "platforms": [
+    { "id": "P1", "label": "Platform 1", "x1": 50, "y1": 80, "x2": 950, "y2": 130 },
+    { "id": "P2", "label": "Platform 2", "x1": 50, "y1": 160, "x2": 950, "y2": 210 },
+    { "id": "P3", "label": "Platform 3", "x1": 50, "y1": 240, "x2": 950, "y2": 290 },
+    { "id": "P4", "label": "Platform 4", "x1": 50, "y1": 320, "x2": 950, "y2": 370 },
+    { "id": "P5", "label": "Platform 5", "x1": 50, "y1": 400, "x2": 950, "y2": 450 }
+  ],
+  "structures": [
+    { "type": "FOB", "label": "Foot Over Bridge", "x1": 390, "y1": 80, "x2": 410, "y2": 470 },
+    { "type": "CONCOURSE", "label": "Main Concourse", "x1": 50, "y1": 450, "x2": 950, "y2": 545 },
+    { "type": "RETIRING_ROOM", "label": "Retiring Rooms", "x1": 800, "y1": 80, "x2": 950, "y2": 240 },
+    { "type": "ENTRY", "label": "Main Entry", "x1": 50, "y1": 548, "x2": 300, "y2": 585 }
+  ],
+  "tracks": [
+    { "id": "T1-2", "x1": 50, "y1": 130, "x2": 950, "y2": 160 },
+    { "id": "T2-3", "x1": 50, "y1": 210, "x2": 950, "y2": 240 },
+    { "id": "T3-4", "x1": 50, "y1": 290, "x2": 950, "y2": 320 },
+    { "id": "T4-5", "x1": 50, "y1": 370, "x2": 950, "y2": 400 }
+  ]
+}

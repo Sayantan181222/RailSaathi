@@ -1,0 +1,31 @@
+{
+  "station_code": "CSTM",
+  "station_name": "Mumbai Chhatrapati Shivaji Terminus",
+  "platforms": [
+    { "id": "P1", "label": "Platform 1", "x1": 30, "y1": 80, "x2": 460, "y2": 115 },
+    { "id": "P2", "label": "Platform 2", "x1": 30, "y1": 140, "x2": 460, "y2": 175 },
+    { "id": "P3", "label": "Platform 3", "x1": 30, "y1": 200, "x2": 460, "y2": 235 },
+    { "id": "P4", "label": "Platform 4", "x1": 30, "y1": 260, "x2": 460, "y2": 295 },
+    { "id": "P5", "label": "Platform 5", "x1": 30, "y1": 320, "x2": 460, "y2": 355 },
+    { "id": "P6", "label": "Platform 6", "x1": 540, "y1": 80, "x2": 970, "y2": 115 },
+    { "id": "P7", "label": "Platform 7", "x1": 540, "y1": 140, "x2": 970, "y2": 175 },
+    { "id": "P8", "label": "Platform 8", "x1": 540, "y1": 200, "x2": 970, "y2": 235 },
+    { "id": "P9", "label": "Platform 9", "x1": 540, "y1": 260, "x2": 970, "y2": 295 },
+    { "id": "P10", "label": "Platform 10", "x1": 540, "y1": 320, "x2": 970, "y2": 355 }
+  ],
+  "structures": [
+    { "type": "HERITAGE_BUILDING", "label": "CST Main Building", "x1": 440, "y1": 80, "x2": 560, "y2": 400 },
+    { "type": "CONCOURSE", "label": "Main Concourse", "x1": 30, "y1": 400, "x2": 970, "y2": 530 },
+    { "type": "ENTRY", "label": "Main Gate", "x1": 400, "y1": 535, "x2": 600, "y2": 575 }
+  ],
+  "tracks": [
+    { "id": "T1-2", "x1": 30, "y1": 115, "x2": 460, "y2": 140 },
+    { "id": "T2-3", "x1": 30, "y1": 175, "x2": 460, "y2": 200 },
+    { "id": "T3-4", "x1": 30, "y1": 235, "x2": 460, "y2": 260 },
+    { "id": "T4-5", "x1": 30, "y1": 295, "x2": 460, "y2": 320 },
+    { "id": "T6-7", "x1": 540, "y1": 115, "x2": 970, "y2": 140 },
+    { "id": "T7-8", "x1": 540, "y1": 175, "x2": 970, "y2": 200 },
+    { "id": "T8-9", "x1": 540, "y1": 235, "x2": 970, "y2": 260 },
+    { "id": "T9-10", "x1": 540, "y1": 295, "x2": 970, "y2": 320 }
+  ]
+}
