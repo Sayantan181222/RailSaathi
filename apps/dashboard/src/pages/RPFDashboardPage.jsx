@@ -217,10 +217,14 @@ export default function RPFDashboardPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/safety/rpf/live');
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+      const res = await fetch(`${API_BASE}/safety/rpf/live`);
       if (!res.ok) throw new Error('Failed to fetch events');
-      const json = await res.json();
-      setEvents(json.data || []);
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); }
+      catch { throw new Error('API waking up. Please click Retry in ~30 seconds.'); }
+      setEvents(data.data || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -256,7 +260,8 @@ export default function RPFDashboardPage() {
         ev.id === id ? { ...ev, status: newStatus } : ev
       ));
 
-      const res = await fetch(`/api/safety/events/${id}/resolve`, {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
+      const res = await fetch(`${API_BASE}/safety/events/${id}/resolve`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         // Auth token would be added here in real app, assuming cookies or intercepted fetch

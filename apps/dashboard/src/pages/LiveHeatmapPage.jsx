@@ -24,8 +24,14 @@ export default function LiveHeatmapPage() {
         throw new Error('Failed to retrieve live public heatmap metrics');
       }
 
-      const statsJson = await statsRes.json();
-      const heatmapJson = await heatmapRes.json();
+      const safeJson = async (res) => {
+        const text = await res.text();
+        try { return JSON.parse(text); }
+        catch { throw new Error('API is waking up. Please retry in 30 seconds.'); }
+      };
+
+      const statsJson = await safeJson(statsRes);
+      const heatmapJson = await safeJson(heatmapRes);
 
       setStats(statsJson.data);
       setHeatmapData(heatmapJson.data || []);

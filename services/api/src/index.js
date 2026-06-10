@@ -113,3 +113,25 @@ app.listen(PORT, () => {
   console.log(`RailSaathi API running on port ${PORT}`);
 });
 
+// Keep-alive ping — prevents Render free tier from sleeping
+// Pings itself every 10 minutes
+if (process.env.NODE_ENV === 'production') {
+  const RENDER_URL = process.env.RENDER_EXTERNAL_URL || 
+    'https://railsaathi-z057.onrender.com';
+  setInterval(async () => {
+    try {
+      const http = require('http');
+      const https = require('https');
+      const url = new URL(`${RENDER_URL}/api/health`);
+      const client = url.protocol === 'https:' ? https : http;
+      client.get(url.toString(), (res) => {
+        console.log(`[KEEP_ALIVE] ping status: ${res.statusCode}`);
+      }).on('error', (e) => {
+        console.warn('[KEEP_ALIVE] ping failed:', e.message);
+      });
+    } catch (e) {
+      console.warn('[KEEP_ALIVE] error:', e.message);
+    }
+  }, 10 * 60 * 1000); // every 10 minutes
+}
+
