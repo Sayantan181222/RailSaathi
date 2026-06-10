@@ -11,7 +11,18 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware setup
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://rail-saathi-amber.vercel.app',
+    'https://rail-saathi.vercel.app',
+    /\.vercel\.app$/,          // allows any vercel preview URLs
+    'http://localhost:5173',   // local Vite dev server
+    'http://localhost:3000',
+  ],
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Global 8-second request timeout middleware
