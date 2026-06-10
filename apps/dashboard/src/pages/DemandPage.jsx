@@ -63,8 +63,8 @@ export default function DemandPage() {
       
       mockData.push({
         id: `mock-intent-${i}`,
-        origin_station: route.origin,
-        destination_station: route.dest,
+        from_station: route.origin,
+        to_station: route.dest,
         class: classVal,
         is_surge: isSurge,
         travel_date: date.toISOString().split('T')[0],
@@ -118,7 +118,7 @@ export default function DemandPage() {
     });
 
     intents.forEach((item) => {
-      const routeKey = `${item.origin}-${item.destination}`;
+      const routeKey = `${item.from_station}-${item.to_station}`;
       // Apply filters in memory
       if (activeFilters.route !== 'All Routes' && routeKey !== activeFilters.route) return;
       if (activeFilters.classVal !== 'All' && item.class !== activeFilters.classVal) return;
@@ -142,7 +142,7 @@ export default function DemandPage() {
     const dayStats = DAYS_OF_WEEK.map((day) => ({ day, surge: 0, normal: 0, total: 0 }));
 
     intents.forEach((item) => {
-      const routeKey = `${item.origin}-${item.destination}`;
+      const routeKey = `${item.from_station}-${item.to_station}`;
       // Apply filters in memory
       if (activeFilters.route !== 'All Routes' && routeKey !== activeFilters.route) return;
       if (activeFilters.classVal !== 'All' && item.class !== activeFilters.classVal) return;
@@ -280,7 +280,7 @@ export default function DemandPage() {
               <h2 style={styles.sidebarHeading}>AI Recommendation</h2>
             </div>
             <p style={styles.recommendationText}>
-              Route <strong>NDLS→MMCT</strong> is showing <strong>43%</strong> surge intent for this Saturday.
+              Route <strong>{activeFilters.route !== 'All Routes' ? activeFilters.route.split('-').join('→') : 'NDLS→MMCT'}</strong> is showing <strong>43%</strong> surge intent for this Saturday.
               Consider deploying additional Rajdhani coaches on <strong>12951</strong>.
             </p>
             <div style={styles.checklistTitle}>Action Items:</div>
