@@ -94,7 +94,7 @@ export default function OverviewPage() {
       const { count, error: dbError } = await supabase
         .from('travel_intents')
         .select('*', { count: 'exact', head: true })
-        .eq('is_surge', true);
+        .eq('is_surge_route', true);
 
       if (dbError) throw dbError;
       setSurgeCount(count || 0);
@@ -138,12 +138,14 @@ export default function OverviewPage() {
       tatkal: true,
     });
     try {
-      await Promise.all([
+      const results = await Promise.allSettled([
         fetchComplaintsCount(),
         fetchSafetyCount(),
         fetchSurgeCount(),
         fetchTatkalCount()
       ]);
+      const hasError = results.some(r => r.status === 'rejected');
+      setError(hasError);
       setLastUpdated(new Date().toLocaleTimeString());
     } catch (err) {
       console.error('Failed to load overview metrics:', err);
@@ -204,50 +206,51 @@ export default function OverviewPage() {
         </button>
       </div>
 
-      {/* Grid layout */}
-      {error ? (
-        <div style={styles.errorCard}>
-          <span style={styles.errorText}>Something went wrong. Please refresh the page.</span>
-          <button style={styles.retryBtn} onClick={fetchAllMetrics}>
+      {/* Non-blocking error banner */}
+      {error && (
+        <div style={{ ...styles.errorCard, padding: '12px 20px', margin: '0 0 12px 0', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={styles.errorText}>⚠️ Some metrics failed to load. Displayed values may be incomplete.</span>
+          <button style={{ ...styles.retryBtn, padding: '6px 16px', fontSize: '13px' }} onClick={fetchAllMetrics}>
             Retry
           </button>
         </div>
-      ) : (
-        <div style={styles.grid}>
-          <KPICard
-            title="Total Complaints Today"
-            value={complaintsCount}
-            icon={FileEdit}
-            colour="var(--color-orange)"
-            description="Complaints filed since midnight"
-            isLoading={loading.complaints}
-          />
-          <KPICard
-            title="Active SOS Alerts"
-            value={safetyCount}
-            icon={ShieldAlert}
-            colour="var(--color-sos)"
-            description="Unresolved SOS incidents"
-            isLoading={loading.safety}
-          />
-          <KPICard
-            title="Demand Surge Routes"
-            value={surgeCount}
-            icon={TrendingUp}
-            colour="#F5A623"
-            description="Routes with high booking intent"
-            isLoading={loading.surge}
-          />
-          <KPICard
-            title="Tatkal Urgency Requests"
-            value={tatkalCount}
-            icon={Clock}
-            colour="var(--color-navy)"
-            description="High-priority Tatkal queued"
-            isLoading={loading.tatkal}
-          />
-        </div>
       )}
+
+      {/* Grid layout */}
+      <div style={styles.grid}>
+        <KPICard
+          title="Total Complaints Today"
+          value={complaintsCount}
+          icon={FileEdit}
+          colour="var(--color-orange)"
+          description="Complaints filed since midnight"
+          isLoading={loading.complaints}
+        />
+        <KPICard
+          title="Active SOS Alerts"
+          value={safetyCount}
+          icon={ShieldAlert}
+          colour="var(--color-sos)"
+          description="Unresolved SOS incidents"
+          isLoading={loading.safety}
+        />
+        <KPICard
+          title="Demand Surge Routes"
+          value={surgeCount}
+          icon={TrendingUp}
+          colour="#F5A623"
+          description="Routes with high booking intent"
+          isLoading={loading.surge}
+        />
+        <KPICard
+          title="Tatkal Urgency Requests"
+          value={tatkalCount}
+          icon={Clock}
+          colour="var(--color-navy)"
+          description="High-priority Tatkal queued"
+          isLoading={loading.tatkal}
+        />
+      </div>
 
       {/* Footer section */}
       <footer style={styles.footer}>
